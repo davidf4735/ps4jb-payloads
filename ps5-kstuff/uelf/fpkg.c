@@ -31,7 +31,7 @@ static void crypto_request_emulated(uint64_t* regs, uint64_t msg, uint32_t statu
     regs[RSI] = status;
 }
 
-static int handle_crypto_message(uint64_t* regs, uint64_t msg, uint64_t bytes_cap, uint64_t* bytes_handled)
+static int handle_crypto_message(uint64_t msg)
 {
     uint64_t msg_data[21];
     copy_from_kernel(msg_data, msg, sizeof(msg_data));
@@ -48,9 +48,11 @@ static int handle_crypto_message(uint64_t* regs, uint64_t msg, uint64_t bytes_ca
             return ENOSYS;
         //log_word(0xdead0006dead0007);
         uint8_t hash[32] = {0};
-        *bytes_handled += msg_data[1];
-        if(bytes_cap < *bytes_handled && pfs_hmac_virtual(hash, key, msg_data[2], msg_data[1]))
+        if(pfs_hmac_virtual(hash, key, msg_data[2], msg_data[1]))
+        {
+            //log_word(0xfee1fee1fee1fee1);
             return -1;
+        }
         copy_to_kernel(msg+32, hash, 32);
         return 0;
     }
@@ -64,21 +66,13 @@ static int handle_crypto_message(uint64_t* regs, uint64_t msg, uint64_t bytes_ca
         if(!get_fake_key(idx, key))
             return ENOSYS;
         //log_word(0xdead0006dead0007);
-        uint64_t n_sectors = (uint32_t)msg_data[1];
-        uint64_t offset = (bytes_cap - *bytes_handled) >> 12;
-        if(offset >= n_sectors)
-        {
-            *bytes_handled += n_sectors << 12;
-            return 0;
-        }
-        *bytes_handled = bytes_cap + 4096;
-        if(pfs_xts_virtual(msg_data[3] + (offset << 12), msg_data[2] + (offset << 12), key, msg_data[4] + offset, 1, (msg_data[0] & 0x800) >> 11))
+        if(pfs_xts_virtual(msg_data[3], msg_data[2], key, msg_data[4], msg_data[1], (msg_data[0] & 0x800) >> 11))
         {
             //log_word(0xfee1fee1fee1fee1);
             return -1;
         }
         else
-            return (offset == n_sectors - 1) ? 0 : EINTR;
+            return 0;
     }
     //log_word(0xdead0006dead0006);
     //log_word(msg);
@@ -88,33 +82,14 @@ static int handle_crypto_message(uint64_t* regs, uint64_t msg, uint64_t bytes_ca
     return ENOSYS;
 }
 
-static inline uint64_t rdtsc(void)
+static int handle_crypto_request(uint64_t* regs)
 {
-    uint32_t a, d;
-    asm volatile("rdtsc":"=a"(a),"=d"(d));
-    return (uint64_t)d << 32 | a;
-}
-
-static int handle_crypto_request(uint64_t* regs, uint64_t bytes_handled)
-{
-    uint64_t start_time = rdtsc();
     int total = 0;
     int emulated = 0;
     int total_status = 0;
-    uint64_t new_bytes_handled = 0;
     for(uint64_t msg = regs[R14]; msg && !total_status; msg = kpeek64(msg+320))
     {
-        int status = handle_crypto_message(regs, msg, bytes_handled, &new_bytes_handled);
-        if(status == EINTR) //partial decrypt, need to restart the syscall
-        {
-            uint64_t frame[6] = {
-                MKTRAP(TRAP_FPKG, 2), 0, 0, 0, 0,
-                new_bytes_handled,
-            };
-            push_stack(regs, frame, sizeof(frame));
-            regs[RIP] = (uint64_t)doreti_iret;
-            return 1;
-        }
+        int status = handle_crypto_message(msg);
         total++;
         if(status != ENOSYS)
         {
@@ -132,9 +107,6 @@ static int handle_crypto_request(uint64_t* regs, uint64_t bytes_handled)
             total_status = -1;
         }
         crypto_request_emulated(regs, regs[R14], total_status);
-        uint64_t end_time = rdtsc();
-        /*log_word(0x1234);
-        log_word(end_time - start_time);*/
         return 1;
     }
     return 0;
@@ -144,7 +116,7 @@ int try_handle_fpkg_trap(uint64_t* regs)
 {
     if(regs[RIP] == (uint64_t)sceSblServiceCryptAsync_deref_singleton)
     {
-        if(!handle_crypto_request(regs, 0))
+        if(!handle_crypto_request(regs))
         {
             regs[RAX] |= -1ull << 48;
             regs[RBX] |= -1ull << 48;
@@ -239,13 +211,6 @@ void handle_fpkg_trap(uint64_t* regs, uint32_t trapno)
         regs[RBP] = frame[10];
         regs[RIP] = frame[11];
         regs[RAX] = 0;
-    }
-    else if(trapno == 2)
-    {
-        uint64_t frame[6];
-        pop_stack(regs, frame, sizeof(frame));
-        regs[RIP] = (uint64_t)sceSblServiceCryptAsync_deref_singleton;
-        handle_crypto_request(regs, frame[5]);
     }
 }
 
