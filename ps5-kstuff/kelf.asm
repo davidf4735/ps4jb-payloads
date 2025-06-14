@@ -9,7 +9,7 @@ extern justreturn_pop
 extern wrmsr_ret
 extern pcpu
 extern mov_rdi_cr3
-extern mov_cr3_rax
+extern mov_cr3_rax_mov_ds
 extern nop_ret
 extern pop_all_iret
 extern push_pop_all_iret
