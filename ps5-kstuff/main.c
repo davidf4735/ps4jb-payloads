@@ -26,7 +26,9 @@ void notify(const char* s)
     } notification = {.f1 = -1};
     char* d = notification.msg;
     while(*d++ = *s++);
-    ((void(*)())dlsym((void*)0x1, "sceKernelSendNotificationRequest"))(0, &notification, 0xc30, 0);
+    int fd = open("/dev/notification0", 1);
+    write(fd, &notification, 0xc30);
+    close(fd);
 }
 
 void die(int line)
