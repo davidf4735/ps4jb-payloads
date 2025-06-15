@@ -916,7 +916,7 @@ DEF(kproc_shutdown, -0x99ff48)
 DEF(s_shutdown_final, -0x336427)
 DEF(eventhandler_register, -0x5375e0)
 DEF(strlen_trap, -0x45b98c)
-DEF(lapic_map, 0)
+DEF(lapic_map, 0x2976fb0)
 #include "offset_list.txt"
 END_FW()
 
@@ -1008,7 +1008,7 @@ DEF(kproc_shutdown, -0x99ff48)
 DEF(s_shutdown_final, -0x336427)
 DEF(eventhandler_register, -0x5375e0)
 DEF(strlen_trap, -0x45b98c)
-DEF(lapic_map, 0)
+DEF(lapic_map, 0x2976fb0)
 #include "offset_list.txt"
 END_FW()
 
@@ -1098,7 +1098,7 @@ DEF(kproc_shutdown, -0x9a0c60)
 DEF(s_shutdown_final, -0x336257)
 DEF(eventhandler_register, -0x537410)
 DEF(strlen_trap, -0x45B7BC)
-DEF(lapic_map, 0)
+DEF(lapic_map, 0x2976fb0)
 #include "offset_list.txt"
 END_FW()
 
@@ -1188,7 +1188,7 @@ DEF(kproc_shutdown, -0x9a0b38)
 DEF(s_shutdown_final, -0x335467)
 DEF(eventhandler_register, -0x536620)
 DEF(strlen_trap, -0x45a9cc)
-DEF(lapic_map, 0)
+DEF(lapic_map, 0x2976fb0)
 #include "offset_list.txt"
 END_FW()
 
