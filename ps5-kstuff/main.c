@@ -2041,7 +2041,7 @@ int main(void* ds, int a, int b, uintptr_t c, uintptr_t d)
     copyin(offsets.crypt_singleton_array + 11*8 + 2*8 + 6, &(const uint16_t[1]){0xdeb7}, 2); //crypt xts
     copyin(offsets.crypt_singleton_array + 11*8 + 9*8 + 6, &(const uint16_t[1]){0xdeb7}, 2); //crypt hmac
 
-	if (fwver < 0x700)				   
+    if (fwver < 0x700)				   
     {
         //enable debug settings & spoof target
         uint32_t q = 0;
@@ -2068,11 +2068,11 @@ int main(void* ds, int a, int b, uintptr_t c, uintptr_t d)
     copyin(IDT+16*179+5, "\x8e", 1);
     patch_shellcore(shellcore_patches, n_shellcore_patches, shellcore_eh_frame_offset);
     gdb_remote_syscall("write", 3, 0, (uintptr_t)1, (uintptr_t)"done\npatching app.db... ", (uintptr_t)24);
-#ifndef FIRMWARE_PORTING
-    patch_app_db();
-#endif
+    #ifndef FIRMWARE_PORTING
+    //patch_app_db();
+    #endif
     gdb_remote_syscall("write", 3, 0, (uintptr_t)1, (uintptr_t)"done\n", (uintptr_t)5);
-#ifndef DEBUG
+    #ifndef DEBUG
     notify("ps5-kstuff successfully loaded");
     return 0;
 #endif
