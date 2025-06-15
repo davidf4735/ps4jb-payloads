@@ -15,8 +15,6 @@
 
 void* dlsym(void*, const char*);
 
-extern void* (*kernel_dynlib_dlsym)(int pid, unsigned int handle, const char* sym);
-
 void notify(const char* s)
 {
     struct
@@ -28,8 +26,7 @@ void notify(const char* s)
     } notification = {.f1 = -1};
     char* d = notification.msg;
     while(*d++ = *s++);
-    // ((void(*)())dlsym((void*)0x1, "sceKernelSendNotificationRequest"))(0, &notification, 0xc30, 0);
-    ((void(*)())kernel_dynlib_dlsym(-1, 0x1, "sceKernelSendNotificationRequest"))(0, &notification, 0xc30, 0);
+    ((void(*)())dlsym((void*)0x1, "sceKernelSendNotificationRequest"))(0, &notification, 0xc30, 0);
 }
 
 void die(int line)
@@ -1843,7 +1840,7 @@ int main(void* ds, int a, int b, uintptr_t c, uintptr_t d)
     getpid();
     p_kekcall = (void*)p_syscall;
 #else
-    p_kekcall = (char*)dlsym((void*)0x2001, "getpid") + 7;
+    p_kekcall = (char*)dlsym((void*)0x1, "getpid") + 7;
 #endif
     if(!kekcall(0, 0, 0, 0, 0, 0, 0xffffffff00000027))
     {
