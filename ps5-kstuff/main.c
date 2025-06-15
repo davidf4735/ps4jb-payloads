@@ -15,6 +15,8 @@
 
 void* dlsym(void*, const char*);
 
+extern void* (*kernel_dynlib_dlsym)(int pid, unsigned int handle, const char* sym);
+
 void notify(const char* s)
 {
     struct
