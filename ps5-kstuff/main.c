@@ -1579,9 +1579,9 @@ static struct PARASITES(14) parasites_700 = {
     .parasites = {
         /* syscall parasites */
         //{-0x837AEC, RDI}, // ?
-        {0x837AEC, R13},
-        {0x3A400C, RSI},
-        {0x3A3FCC, RSI},
+        {-0x837AEC, R13},
+        {-0x3A400C, RSI},
+        {-0x3A3FCC, RSI},
         /* fself parasites */
         {-0x2E2EC6, RAX},
         {-0x2E39FA, RAX},
