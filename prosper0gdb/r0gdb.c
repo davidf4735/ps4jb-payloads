@@ -483,11 +483,11 @@ void r0gdb_write_dbreg(int which, uint64_t value)
 uint64_t r0gdb_read_cr3(void)
 {
     struct regs regs = {0};
-    regs.rip = offsets.mov_rdi_cr3;
+    regs.rip = offsets.mov_rax_cr3;
     regs.rsp = kstack;
     regs.eflags = 0x102;
     run_in_kernel(&regs);
-    return regs.rdi;
+    return regs.rax;
 }
 
 void r0gdb_write_cr3(uint64_t cr3)

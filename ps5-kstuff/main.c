@@ -1054,6 +1054,39 @@ static struct shellcore_patch shellcore_patches_761[] = {
     {0x690d40, "\x48\x31\xC0\xC3", 4}, //PKG Installer
 };
 
+static struct shellcore_patch shellcore_patches_800[] = {
+    {0xba85ce, "\x52\xeb\x08", 3}, //push    rdx, jmp     short loc_BA85D9
+    {0xba85d9, "\xe8\xe2\xf6\xff\xff\x58\xc3", 7}, //call 0xBA7FC0; pop rax; ret
+    {0xba7cb2, "\xe0\x0a\x00\x00", 4},
+    {0xba8796, "\x31\xc0\x50\xe8\x22\xf5\xff\xff\x58\xc3", 10},
+
+    {0x6b27bd, "\xeb\x04", 2},
+    {0x2f1a82, "\xeb\x04", 2},
+    {0x2f1ed2, "\xeb\x04", 2},
+    {0x6d1cc1, "\xeb", 1},
+    {0x6baa05, "\x90\xe9", 2},
+    {0x6d2a0d, "\xeb", 1},
+
+    {0x6d3f89, "\x61\x01\x00\x00", 4}, // 0x6D40EE
+    {0x1f7272, "\xe8\x19\x3c\x5c\x00\x31\xc9\xff\xc1\xe9\xb3\x02\x00\x00", 14}, // call 0x7BAE90; xor ecx; inc ecx; jmp 0x1f7533
+    {0x1f7533, "\x83\xf8\x02\x0f\x43\xc1\xe9\xa7\xfb\xff\xff", 11},//cmp eax, 2; cmovae eax, ecx; jmp 0x1F9D3A
+    {0x1f6f2e, "\xe9\x3f\x03\x00\x00", 5}, // JMP 0x1F7272
+
+    {0x15fbe80, "\x31\xc0\xc3", 3}, // VR2 Min Fw Check
+    {0xa2cac6, "\xeb\x03", 2}, // disable game error message
+    {0x2ea51b, "\x90\xe9", 2}, // PS4 Disc Installer Patch 1
+    {0x2ea599, "\x90\xe9", 2}, // PS5 Disc Installer Patch 1
+    {0x2ea69c, "\xeb", 1}, // PS4 PKG Installer Patch 1
+    {0x2ea770, "\xeb", 1}, // PS5 PKG Installer Patch 1
+    {0x2eab57, "\x90\xe9", 2}, // PS4 PKG Installer Patch 2
+    {0x2eacdf, "\xeb", 1}, // PS5 PKG Installer Patch 2
+    {0x2eb09e, "\x90\xe9", 2}, // PS4 PKG Installer Patch 3
+    {0x2eb131, "\x90\xe9", 2}, // PS5 PKG Installer Patch 3
+    {0x6b14ca, "\xeb", 1}, // PS4 PKG Installer Patch 4
+    {0x6b4324, "\xeb", 1}, // PS5 PKG Installer Patch 4
+    {0x6b77b0, "\x48\x31\xc0\xc3", 4}, // PKG Installer
+};
+
 extern char _start[];
 
 static void relocate_shellcore_patches(struct shellcore_patch* patches, size_t n_patches)
@@ -1140,7 +1173,8 @@ static const struct shellcore_patch* get_shellcore_patches(size_t* n_patches)
     FW(720);
     FW(740);
     FW(760);
-    FW(761);	
+    FW(761);
+    FW(800);	
     default:
         *n_patches = 1;
         return 0;
@@ -1728,6 +1762,35 @@ static struct PARASITES(14) parasites_761 = {
     }
 };
 
+static struct PARASITES(14) parasites_800 = {
+    .lim_syscall = 3,
+    .lim_fself = 12,
+    .lim_total = 14,
+    .parasites = {
+        /* syscall parasites */
+        //{-0x8574BE, RDI}, // ?
+        {-0x8574BE, R13},
+        {-0x3AE2BC, RSI},
+        {-0x3AE27C, RSI},
+        /* fself parasites */
+        {-0x2EC9F6, RAX},
+        {-0x2ED548, RAX},
+        {-0x2ED410, RAX},
+        {-0x2ED17B, RAX},
+        {-0x2ECEAD, RAX},
+        //{-0x2ECB76, RDX},
+	    {-0x2ECB76, RAX},
+        //{-0x2ECB6A, RCX},
+	    {-0x2ECB6A, RAX},
+        {-0x9ED0EC, RDI},
+        //{-0x2ECFE7, R10},
+        {-0x2ECFE7, RAX},
+        /* unsorted parasites */
+        {-0x49D6BF, RAX},
+        {-0x49D6BF, R15},
+    }
+};
+
 static struct parasite_desc* get_parasites(size_t* desc_size)
 {
     uint32_t ver = r0gdb_get_fw_version() >> 16;
@@ -1799,7 +1862,10 @@ static struct parasite_desc* get_parasites(size_t* desc_size)
         return (void*)&parasites_760;
     case 0x761:
         *desc_size = sizeof(parasites_761);
-        return (void*)&parasites_761;					 
+        return (void*)&parasites_761;	
+    case 0x800:
+        *desc_size = sizeof(parasites_800);
+        return (void*)&parasites_800;		
     default:
         return 0;
 #else
