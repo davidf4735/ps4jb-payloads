@@ -60,7 +60,7 @@ static int handle_crypto_message(uint64_t* regs, uint64_t msg, uint64_t bytes_ca
     else if((msg_data[0] & 0x7ffff7ff) == 0x2108000) // AES-XTS decrypt/encrypt with key handle
     {
         int idx = HANDLE_TO_IDX(msg_data[5]);
-        //log_word(0xfee10006dead0100|(uint16_t)idx|((msg_data[0]&0x800)<<4));
+        //log_word(0xfee10006dead0100|(uint16_t)idx|((msg_data[0]&0x1001)<<4));
         if(idx < 0)
             return ENOSYS;
         uint8_t key[32];
@@ -75,7 +75,7 @@ static int handle_crypto_message(uint64_t* regs, uint64_t msg, uint64_t bytes_ca
             return 0;
         }
         *bytes_handled = bytes_cap + 4096;
-        if(pfs_xts_virtual(msg_data[3] + (offset << 12), msg_data[2] + (offset << 12), key, msg_data[4] + offset, 1, (msg_data[0] & 0x800) >> 11))
+        if(pfs_xts_virtual(msg_data[3] + (offset << 12), msg_data[2] + (offset << 12), key, msg_data[4] + offset, 1, (msg_data[0] & 0x1001) >> 11))
         {
             //log_word(0xfee1fee1fee1fee1);
             return -1;
@@ -106,7 +106,7 @@ static int handle_crypto_request(uint64_t* regs, uint64_t bytes_handled)
     int total_status = 0;
     uint64_t new_bytes_handled = 0;
 
-    uint64_t start = (fwver >= 0x800) ? regs[RBX] : regs[R14];
+    uint64_t start = (fwver >= 0x1001) ? regs[RBX] : regs[R14];
 
     for (uint64_t msg = start; msg && !total_status; msg = kpeek64(msg + 320))
     {
@@ -142,7 +142,7 @@ static int handle_crypto_request(uint64_t* regs, uint64_t bytes_handled)
             total_status = -1;
         }
 
-        crypto_request_emulated(regs, (fwver >= 0x800) ? regs[RBX] : regs[R14], total_status);
+        crypto_request_emulated(regs, (fwver >= 0x1001) ? regs[RBX] : regs[R14], total_status);
 
         uint64_t end_time = rdtsc();
         /*log_word(0x1234);

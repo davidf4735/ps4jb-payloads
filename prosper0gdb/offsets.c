@@ -2083,7 +2083,7 @@ DEF(lapic_map, 0x28B3830)
 #include "offset_list.txt"
 END_FW()
 
-START_FW(800)
+START_FW(1001)
 DEF(allproc, 0x2875d50) 
 DEF(idt, 0x2eb3df0) 
 DEF(gdt_array, 0x2eb50d0) 
@@ -2205,7 +2205,7 @@ int set_offsets(void)
     case 0x740: set_offsets_740(); break;
     case 0x760: set_offsets_760(); break;
     case 0x761: set_offsets_761(); break;
-    case 0x800: set_offsets_800(); break;
+    case 0x1001: set_offsets_1001(); break;
 #endif
     default: return -1;
     }

@@ -1054,7 +1054,7 @@ static struct shellcore_patch shellcore_patches_761[] = {
     {0x690d40, "\x48\x31\xC0\xC3", 4}, //PKG Installer
 };
 
-static struct shellcore_patch shellcore_patches_800[] = {
+static struct shellcore_patch shellcore_patches_1001[] = {
     {0xba85ce, "\x52\xeb\x08", 3}, //push rdx; jmp 0xBA85D9 **
     {0xba85d9, "\xe8\xe2\xf6\xff\xff\x58\xc3", 7}, //call 0xBA7CC0; pop rax; ret **
     //{0xba7cb2, "\xe0\x0a\x00\x00", 4},
@@ -1177,7 +1177,7 @@ static const struct shellcore_patch* get_shellcore_patches(size_t* n_patches)
     FW(740);
     FW(760);
     FW(761);
-    FW(800);	
+    FW(1001);	
     default:
         *n_patches = 1;
         return 0;
@@ -1765,7 +1765,7 @@ static struct PARASITES(14) parasites_761 = {
     }
 };
 
-static struct PARASITES(14) parasites_800 = {
+static struct PARASITES(14) parasites_1001 = {
     .lim_syscall = 3,
     .lim_fself = 12,
     .lim_total = 14,
@@ -1865,9 +1865,9 @@ static struct parasite_desc* get_parasites(size_t* desc_size)
     case 0x761:
         *desc_size = sizeof(parasites_761);
         return (void*)&parasites_761;	
-    case 0x800:
-        *desc_size = sizeof(parasites_800);
-        return (void*)&parasites_800;		
+    case 0x1001:
+        *desc_size = sizeof(parasites_1001);
+        return (void*)&parasites_1001;		
     default:
         return 0;
 #else
