@@ -1212,7 +1212,7 @@ static const struct shellcore_patch* get_shellcore_patches(size_t* n_patches)
     FW(760);
     FW(761);
     FW(800);	
-	FW(8200);
+	FW(820);
     default:
         *n_patches = 1;
         return 0;
