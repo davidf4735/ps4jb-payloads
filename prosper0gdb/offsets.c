@@ -2144,7 +2144,7 @@ DEF(sceSblServiceMailbox_lr_sceSblPfsClearKey_1, -0x9a5c0a)
 DEF(sceSblServiceMailbox_lr_sceSblPfsClearKey_2, -0x9a5b9e)
 //DEF(sceSblPfsSetKeys, -0x9A5930) //403
 DEF(sceSblPfsSetKeys, -0x9a6780) // 550 **
-DEF(sceSblServiceCryptAsync, -0x946f60) 
+DEF(sceSblServiceCryptAsync, -0x11AA010) 
 DEF(sceSblServiceCryptAsync_deref_singleton, -0x946f23) 
 DEF(copyin, -0xa32d30)
 DEF(copyout, -0xa32de0) 
